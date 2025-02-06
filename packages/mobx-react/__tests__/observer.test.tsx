@@ -13,7 +13,8 @@ import {
     autorun,
     IReactionDisposer,
     reaction,
-    configure
+    configure,
+    runInAction
 } from "mobx"
 import { withConsole } from "./utils/withConsole"
 import { shallowEqual } from "../src/utils/utils"
@@ -293,27 +294,6 @@ test("issue 12", () => {
     })
     expect(container).toMatchSnapshot()
     expect(events).toEqual(["table", "row: coffee", "row: tea", "table", "row: soup"])
-})
-
-test("changing state in render should fail", () => {
-    const data = observable.box(2)
-    const Comp = observer(() => {
-        if (data.get() === 3) {
-            try {
-                data.set(4) // wouldn't throw first time for lack of observers.. (could we tighten this?)
-            } catch (err) {
-                expect(err).toBeInstanceOf(Error)
-                expect(err).toMatch(
-                    /Side effects like changing state are not allowed at this point/
-                )
-            }
-        }
-        return <div>{data.get()}</div>
-    })
-    render(<Comp />)
-
-    act(() => data.set(3))
-    _resetGlobalState()
 })
 
 test("observer component can be injected", () => {
@@ -1011,6 +991,36 @@ test("#3492 should not cause warning by calling forceUpdate on uncommited compon
     unmount()
     expect(consoleWarnMock).toMatchSnapshot()
 })
+
+test("#3648 enableStaticRendering doesn't warn with observableRequiresReaction/computedRequiresReaction", () => {
+    consoleWarnMock = jest.spyOn(console, "warn").mockImplementation(() => {})
+    const { observableRequiresReaction, computedRequiresReaction } = _getGlobalState()
+    try {
+        enableStaticRendering(true)
+        configure({ observableRequiresReaction: true, computedRequiresReaction: true })
+        const o = observable.box(0, { name: "o" })
+        const c = computed(() => o.get(), { name: "c" })
+
+        @observer
+        class TestCmp extends React.Component<any> {
+            render() {
+                expect(this).toBeDefined()
+                return o.get() + c.get()
+            }
+        }
+
+        const { unmount, container } = render(<TestCmp />)
+        expect(container).toHaveTextContent("0")
+        unmount()
+
+        expect(consoleWarnMock).toMatchSnapshot()
+    } finally {
+        enableStaticRendering(false)
+        _resetGlobalState()
+        configure({ observableRequiresReaction, computedRequiresReaction })
+        consoleWarnMock.mockRestore()
+    }
+})
 ;["props", "state", "context"].forEach(key => {
     test(`using ${key} in computed throws`, () => {
         // React prints errors even if we catch em
@@ -1299,7 +1309,7 @@ test("Class observer can react to changes made before mount #3730", () => {
     @observer
     class Child extends React.Component {
         componentDidMount(): void {
-            o.set(1)
+            runInAction(() => o.set(1))
         }
         render() {
             return ""

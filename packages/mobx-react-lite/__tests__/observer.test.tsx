@@ -1088,6 +1088,27 @@ test("Anonymous component displayName #3192", () => {
     consoleErrorSpy.mockRestore()
 })
 
+test("#3648 enableStaticRendering doesn't warn with observableRequiresReaction/computedRequiresReaction", () => {
+    consoleWarnMock = jest.spyOn(console, "warn").mockImplementation(() => {})
+    try {
+        enableStaticRendering(true)
+        mobx.configure({ observableRequiresReaction: true, computedRequiresReaction: true })
+        const o = mobx.observable.box(0, { name: "o" })
+        const c = mobx.computed(() => o.get(), { name: "c" })
+        const TestCmp = observer(() => <div>{o.get() + c.get()}</div>)
+
+        const { unmount, container } = render(<TestCmp />)
+        expect(container).toHaveTextContent("0")
+        unmount()
+
+        expect(consoleWarnMock).toMatchSnapshot()
+    } finally {
+        enableStaticRendering(false)
+        mobx._resetGlobalState()
+        consoleWarnMock.mockRestore()
+    }
+})
+
 test("StrictMode #3671", async () => {
     const o = mobx.observable({ x: 0 })
 

@@ -2,6 +2,8 @@
 
 exports[`#3492 should not cause warning by calling forceUpdate on uncommited components 1`] = `[MockFunction]`;
 
+exports[`#3648 enableStaticRendering doesn't warn with observableRequiresReaction/computedRequiresReaction 1`] = `[MockFunction]`;
+
 exports[`Redeclaring an existing observer component as an observer should throw 1`] = `"The provided component class (AlreadyObserver) has already been declared as an observer component."`;
 
 exports[`SSR works #3448 1`] = `[MockFunction]`;

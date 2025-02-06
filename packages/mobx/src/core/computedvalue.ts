@@ -354,9 +354,10 @@ export class ComputedValue<T> implements IObservable, IComputedValue<T>, IDeriva
             )
         }
         if (
-            typeof this.requiresReaction_ === "boolean"
+            !globalState.allowStateReads &&
+            (typeof this.requiresReaction_ === "boolean"
                 ? this.requiresReaction_
-                : globalState.computedRequiresReaction
+                : globalState.computedRequiresReaction)
         ) {
             console.warn(
                 `[mobx] Computed value '${this.name_}' is being read outside a reactive context. Doing a full recompute.`

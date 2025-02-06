@@ -1,6 +1,4 @@
 import { forwardRef, memo } from "react"
-
-import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
 
 let warnObserverOptionsDeprecated = true
@@ -97,10 +95,6 @@ export function observer<P extends object, TRef = {}>(
     }
 
     // The working of observer is explained step by step in this talk: https://www.youtube.com/watch?v=cPF4iBedoF0&feature=youtu.be&t=1307
-    if (isUsingStaticRendering()) {
-        return baseComponent
-    }
-
     let useForwardRef = options?.forwardRef ?? false
     let render = baseComponent
 

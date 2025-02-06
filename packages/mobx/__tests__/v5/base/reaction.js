@@ -293,7 +293,7 @@ test("fireImmediately should not be honored when passed already aborted AbortSig
 
     reaction(
         () => a.get(),
-        (newValue) => {
+        newValue => {
             values.push(newValue)
         },
         { signal: ac.signal, fireImmediately: true }

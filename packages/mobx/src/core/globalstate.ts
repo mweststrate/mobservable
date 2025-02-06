@@ -90,9 +90,9 @@ export class MobXGlobals {
 
     /**
      * Is it allowed to read observables at this point?
-     * Used to hold the state needed for `observableRequiresReaction`
+     * Used to hold the state needed for `observableRequiresReaction`/`computedRequiresReaction`
      */
-    allowStateReads = true
+    allowStateReads = false
 
     /**
      * If strict mode is enabled, state changes are by default not allowed

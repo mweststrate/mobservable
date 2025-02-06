@@ -1,4 +1,4 @@
-import { Reaction } from "mobx"
+import { Reaction, _allowStateReadsEnd, _allowStateReadsStart } from "mobx"
 import React from "react"
 import { printDebugValue } from "./utils/printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
@@ -34,7 +34,12 @@ function createReaction(adm: ObserverAdministration) {
 
 export function useObserver<T>(render: () => T, baseComponentName: string = "observed"): T {
     if (isUsingStaticRendering()) {
-        return render()
+        let allowStateReads = _allowStateReadsStart?.(true)
+        try {
+            return render()
+        } finally {
+            _allowStateReadsEnd?.(allowStateReads)
+        }
     }
 
     const admRef = React.useRef<ObserverAdministration | null>(null)
