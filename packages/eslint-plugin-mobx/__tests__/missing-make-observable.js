@@ -5,22 +5,22 @@ import rule from "../src/missing-make-observable.js";
 const tester = getRuleTester();
 
 const fields = [
-  '@observable o = 5',
-  '@observable.ref or = []',
-  '@observable.shallow os = []',
-  '@observable.deep od = {}',
-  '@computed get c() {}',
-  '@computed.struct get cs() {}',
-  '@computed({ equals }) get co() {}',
-  '@action a() {}',
-  '@action.bound ab() {}',
-  '@flow *f() {}',
-  '@flow.bound *fb() {}',
+  'observable o = 5',
+  'observable.ref or = []',
+  'observable.shallow os = []',
+  'observable.deep od = {}',
+  'computed get c() {}',
+  'computed.struct get cs() {}',
+  'computed({ equals }) get co() {}',
+  'action a() {}',
+  'action.bound ab() {}',
+  'flow *f() {}',
+  'flow.bound *fb() {}',
 ];
 
 const valid1 = fields.map(field => `
 class C {     
-  ${field}
+  @${field}
 
   constructor() {
     makeObservable(this) 
@@ -45,7 +45,7 @@ class C {
 
 const valid3 = fields.map(field => `
 class C {     
-  ${field}
+  @${field}
 
   constructor() {
     makeObservable(this, null, { name: 'foo' }) 
@@ -55,7 +55,7 @@ class C {
 
 const valid4 = fields.map(field => `
 class C {     
-  ${field}
+  @${field}
 
   constructor(aString: string);
   constructor(aNum: number);
@@ -68,7 +68,7 @@ class C {
 const invalid1 = fields.map(field => ({
   code: `
 class C {
-  ${field}
+  @${field}
 }
 `,
   errors: [
@@ -77,7 +77,7 @@ class C {
   output: `
 class C {
 constructor() { makeObservable(this); }
-  ${field}
+  @${field}
 }
 `
 }))
@@ -85,7 +85,7 @@ constructor() { makeObservable(this); }
 const invalid2 = fields.map(field => ({
   code: `
 class C {
-  ${field}
+  @${field}
   constructor() {}
 }
 `,
@@ -94,7 +94,7 @@ class C {
   ],
   output: `
 class C {
-  ${field}
+  @${field}
   constructor() {;makeObservable(this);}
 }
 `,
@@ -103,7 +103,7 @@ class C {
 const invalid3 = fields.map(field => ({
   code: `
 class C {
-  ${field}
+  @${field}
   constructor() {
     makeObservable({ a: 5 });
   }
@@ -114,7 +114,7 @@ class C {
   ],
   output: `
 class C {
-  ${field}
+  @${field}
   constructor() {
     makeObservable({ a: 5 });
   ;makeObservable(this);}
@@ -125,7 +125,7 @@ class C {
 const invalid4 = fields.map(field => ({
   code: `
 class C {
-  ${field}
+  @${field}
   constructor()
 }
 `,
@@ -134,7 +134,7 @@ class C {
   ],
   output: `
 class C {
-  ${field}
+  @${field}
   constructor() { makeObservable(this); }
 }
 `,
@@ -144,7 +144,7 @@ class C {
 const invalid5 = fields.map(field => ({
   code: `
 class C {
-  ${field}
+  @${field}
   constructor() {
     makeObservable(this, { o: observable.ref });
   }
@@ -155,6 +155,143 @@ class C {
   ],
 }))
 
+const invalid6 = fields.map(field => ({
+    code: `
+import * as mobx from 'mobx';
+
+class C {
+  @mobx.${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+import * as mobx from 'mobx';
+
+class C {
+constructor() { mobx.makeObservable(this); }
+  @mobx.${field}
+}
+`,
+  }
+))
+
+const invalid7 = fields.map(field => ({
+    code: `
+import { foo } from 'mobx';
+
+class C {
+  @${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+import { foo, makeObservable } from 'mobx';
+
+class C {
+constructor() { makeObservable(this); }
+  @${field}
+}
+`,
+  }
+))
+
+const invalid8 = fields.map(field => ({
+    code: `
+import { foo } from 'mobx';
+import * as mobx from 'mobx';
+
+class C {
+  @mobx.${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+import { foo } from 'mobx';
+import * as mobx from 'mobx';
+
+class C {
+constructor() { mobx.makeObservable(this); }
+  @mobx.${field}
+}
+`,
+  }
+))
+
+const invalid9 = fields.map(field => ({
+    code: `
+import { makeObservable as makeBanana } from 'mobx';
+
+class C {
+  @${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+import { makeObservable as makeBanana } from 'mobx';
+
+class C {
+constructor() { makeBanana(this); }
+  @${field}
+}
+`,
+  }
+))
+
+const invalid10 = fields.map(field => ({
+    code: `
+class C extends Component {
+  @${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+class C extends Component {
+constructor(props) { super(props); makeObservable(this); }
+  @${field}
+}
+`,
+  }
+))
+
+const invalid11 = fields.map(field => ({
+    code: `
+class C extends React.Component<{ foo: string }> {
+  @${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservable' },
+    ],
+    output: `
+class C extends React.Component<{ foo: string }> {
+constructor(props: { foo: string }) { super(props); makeObservable(this); }
+  @${field}
+}
+`,
+  }
+))
+
+const invalid12 = fields.map(field => ({
+    code: `
+class C extends Banana {
+  @${field}
+}
+`,
+    errors: [
+      { messageId: 'missingMakeObservableSuper' },
+    ],
+  }
+))
 
 tester.run("missing-make-observable", rule, {
   valid: [
@@ -169,5 +306,12 @@ tester.run("missing-make-observable", rule, {
     ...invalid3,
     ...invalid4,
     ...invalid5,
+    ...invalid6,
+    ...invalid7,
+    ...invalid8,
+    ...invalid9,
+    ...invalid10,
+    ...invalid11,
+    ...invalid12,
   ],
 });
