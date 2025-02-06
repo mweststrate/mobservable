@@ -36,7 +36,7 @@ export function when(predicate: any, arg1?: any, arg2?: any): any {
 function _when(predicate: () => boolean, effect: Lambda, opts: IWhenOptions): IReactionDisposer {
     let timeoutHandle: any
     if (typeof opts.timeout === "number") {
-        const error = new Error("WHEN_TIMEOUT")
+        const error = new Error(`WHEN_TIMEOUT${opts.name ? `: ${opts.name}` : ``}`)
         timeoutHandle = setTimeout(() => {
             if (!disposer[$mobx].isDisposed) {
                 disposer()
