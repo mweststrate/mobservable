@@ -151,6 +151,14 @@ class Dimension {
 
 </details>
 
+<details id="computed-shallow"><summary>{🚀} **Tip:** `computed.shallow` for comparing output shallowly <a href="#computed-shallow" class="tip-anchor"></a></summary>
+
+If the output of a computed value that is a collection with all items identical to the collection from previous computation doesn't need to notify observers, `computed.shallow` can be used. It will do size check and reference equality check for each item, rather than a reference equality check of the collection, before notifying observers.
+
+In practice, `computed.shalow` is useful only in limited situations. Only use it if changes in the underlying observables can still lead to the same contents in the collection, for example, if we were filtering a list of rectangles by whether they are in a given area, the rectangles included might stay the same even though the area changes.
+
+</details>
+
 <details id="computed-struct"><summary>{🚀} **Tip:** `computed.struct` for comparing output structurally <a href="#computed-struct" class="tip-anchor"></a></summary>
 
 If the output of a computed value that is structurally equivalent to the previous computation doesn't need to notify observers, `computed.struct` can be used. It will make a structural comparison first, rather than a reference equality check, before notifying observers. For example:

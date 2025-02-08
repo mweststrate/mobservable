@@ -17,6 +17,7 @@ import {
 import type { ClassGetterDecorator } from "../types/decorator_fills"
 
 export const COMPUTED = "computed"
+export const COMPUTED_SHALLOW = "computed.shallow"
 export const COMPUTED_STRUCT = "computed.struct"
 
 export interface IComputedFactory extends Annotation, PropertyDecorator, ClassGetterDecorator {
@@ -25,10 +26,14 @@ export interface IComputedFactory extends Annotation, PropertyDecorator, ClassGe
     // computed(fn, opts)
     <T>(func: () => T, options?: IComputedValueOptions<T>): IComputedValue<T>
 
+    shallow: Annotation & PropertyDecorator & ClassGetterDecorator
     struct: Annotation & PropertyDecorator & ClassGetterDecorator
 }
 
 const computedAnnotation = createComputedAnnotation(COMPUTED)
+const computedShallowAnnotation = createComputedAnnotation(COMPUTED_SHALLOW, {
+    equals: comparer.shallow
+})
 const computedStructAnnotation = createComputedAnnotation(COMPUTED_STRUCT, {
     equals: comparer.structural
 })
@@ -71,4 +76,5 @@ export const computed: IComputedFactory = function computed(arg1, arg2) {
 
 Object.assign(computed, computedAnnotation)
 
+computed.shallow = createDecoratorAnnotation(computedShallowAnnotation)
 computed.struct = createDecoratorAnnotation(computedStructAnnotation)

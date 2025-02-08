@@ -219,7 +219,33 @@ test("computed setter should succeed", () => {
     t.equal(b.propX, 8)
 })
 
-test("typescript: parameterized computed decorator", () => {
+test("@computed.shallow (TS)", () => {
+    class TestClass {
+        @observable.struct x = { a: 3 }
+        @observable.struct y = { b: 4 }
+        @computed.shallow
+        get array() {
+            return [this.x, this.y]
+        }
+        constructor() {
+            makeObservable(this)
+        }
+    }
+
+    const t1 = new TestClass()
+    const changes: string[] = []
+    const d = autorun(() => changes.push(JSON.stringify(t1.array)))
+
+    t1.x = { a: 5 } // change
+    t.equal(changes.length, 2)
+    t1.x.a = 6 // no change
+    t.equal(changes.length, 2)
+    d()
+
+    t.deepEqual(changes, ['[{"a":3},{"b":4}]', '[{"a":5},{"b":4}]'])
+})
+
+test("@computed.struct (TS)", () => {
     class TestClass {
         @observable x = 3
         @observable y = 3
