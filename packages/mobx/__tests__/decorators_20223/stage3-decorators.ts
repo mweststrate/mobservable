@@ -1115,3 +1115,22 @@ test(`decorated field can be inherited, but doesn't inherite the effect of decor
     const subStore = new SubStore()
     expect(isAction(subStore.action)).toBe(false)
 })
+
+test(`inheritance should work with computed`, () => {
+    class Store {
+        @computed
+        get getNumber() {
+            return 1
+        }
+    }
+
+    class SubStore extends Store {
+        @computed
+        override get getNumber() {
+            return super.getNumber + 1
+        }
+    }
+
+    const store = new SubStore()
+    expect(store.getNumber).toBe(2)
+})

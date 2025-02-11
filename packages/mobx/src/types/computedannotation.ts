@@ -64,11 +64,13 @@ function decorate_20223_(this: Annotation, get, context: ClassGetterDecoratorCon
         options.name ||= __DEV__
             ? `${adm.name_}.${key.toString()}`
             : `ObservableObject.${key.toString()}`
-        adm.values_.set(key, new ComputedValue(options))
+        const computedValue = new ComputedValue(options)
+        adm.values_.set(key, computedValue)
+        adm.values_.set(get, computedValue)
     })
 
     return function () {
-        return this[$mobx].getObservablePropValue_(key)
+        return this[$mobx].getObservablePropValue_(get)
     }
 }
 
