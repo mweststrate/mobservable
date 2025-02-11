@@ -16,6 +16,7 @@ With modern decorators, it is no longer needed to call `makeObservable` / `makeA
 2022.3 Decorators are supported in:
 
 -   TypeScript (5.0 and higher, make sure that the `experimentalDecorators` flag is NOT enabled). [Example commit](https://github.com/mweststrate/currencies-demo/commit/acb9ac8c148e8beef88042c847bb395131e85d60).
+    -   Note: As modern decorators are not yet supported in major browsers ([implementation status](https://github.com/tc39/proposal-decorators/issues/476)), any TypeScript target other than ESNext will result in a bundle size increase from transpiling compared with legacy decorators. Consider the bundle size impact before moving to modern decorators.
 -   For Babel make sure the plugin [`proposal-decorators`](https://babeljs.io/docs/babel-plugin-proposal-decorators) is enabled with the highest version (currently `2023-05`). [Example commit](https://github.com/mweststrate/currencies-demo/commit/4999d2228208f3e1e10bc00a272046eaefde8585).
 
 ```js
